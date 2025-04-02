@@ -1,11 +1,13 @@
 const express = require("express");
 const Event = require("../models/event.js");
+const auth = require("../middleware/auth.js");
+const admin = require("../middleware/admin.js");
 const router = express.Router();
 
 // Create event (Admin only)
-router.post("/", async (req, res) => {
+router.post("/", auth, admin, async (req, res) => {
   try {
-    const newEvent = new Event(req.body);
+    const newEvent = new Event({ ...req.body, createdBy: req.user.userId });
     const savedEvent = await newEvent.save();
     res.status(201).json(savedEvent);
   } catch (err) {
@@ -13,31 +15,8 @@ router.post("/", async (req, res) => {
   }
 });
 
-// Get all events
-router.get("/", async (req, res) => {
-  try {
-    const events = await Event.find();
-    res.status(200).json(events);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Get a single event
-router.get("/:id", async (req, res) => {
-  try {
-    const event = await Event.findById(req.params.id);
-    if (!event) {
-      return res.status(404).json({ message: "Event not found" });
-    }
-    res.status(200).json(event);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 // Update event (Admin only)
-router.put("/:id", async (req, res) => {
+router.put("/:id", auth, admin, async (req, res) => {
   try {
     const updatedEvent = await Event.findByIdAndUpdate(
       req.params.id,
@@ -54,7 +33,7 @@ router.put("/:id", async (req, res) => {
 });
 
 // Delete event (Admin only)
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", auth, admin, async (req, res) => {
   try {
     const deletedEvent = await Event.findByIdAndDelete(req.params.id);
     if (!deletedEvent) {
@@ -67,3 +46,4 @@ router.delete("/:id", async (req, res) => {
 });
 
 module.exports = router;
+
