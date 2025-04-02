@@ -3,8 +3,9 @@ require("dotenv").config({ path: "./backend/.env" });
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const eventRoutes = require("./routes/event"); // Import the event routes
-const userRoutes = require("./routes/user");
+const eventRoutes = require("./routes/event.js"); // Import the event routes
+const userRoutes = require("./routes/user.js");
+const authRoutes = require("./routes/auth.js");
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(cors({
     origin: 'http://localhost:4000',  // Or your specific front-end address
     methods: ['GET', 'POST'],
 }));
+app.use("/api/auth", authRoutes);
 
 // Connect to MongoDB
 mongoose
